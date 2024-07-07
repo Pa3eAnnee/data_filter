@@ -1,1 +1,49 @@
-# Le menu de navigation
+import os
+
+from src.data_io import read_file
+
+
+def select_file():
+    data_folder = "data"
+    files = os.listdir(data_folder)
+    print("Files in the data folder:")
+    for i, file in enumerate(files, start=1):
+        print(f"{i} ... {file}")
+
+    choice = input("Enter your choice: ")
+
+    if int(choice) < 1 or int(choice) > len(files):
+        print("Invalid choice. Please try again.")
+        return select_file()
+    else:
+        selected_file = files[int(choice) - 1]
+        return os.path.join(data_folder, selected_file)
+
+
+def main_menu():
+    print("Please select an option:")
+    print("1 ... Select a file")
+    print("2 ... Filter data WIP")
+    print("3 ... Sort data WIP")
+    print("4 ... Export data WIP")
+    print("0 ... Quit")
+
+    choice = input("Enter your choice: ")
+
+    if choice == "1":
+        file_path = select_file()
+        if file_path:
+            print(f"Selected : {file_path}")
+
+    elif choice == "2":
+        print("Filtering data feature WIP")
+    elif choice == "3":
+        print("Sorting data feature WIP")
+    elif choice == "4":
+        print("Exporting data feature WIP")
+    elif choice == "0":
+        print("Quitting the application")
+        return
+    else:
+        print("Invalid choice. Please try again.")
+        main_menu()

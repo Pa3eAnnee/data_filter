@@ -1,9 +1,14 @@
 # Manipuler les données (charger, sauvegarder, filtrer, trier et afficher des données)
 
-def process_file(raw_data):
-    print(raw_data)
-    rows = raw_data.split("\n")
-    headers = rows[0].split(";")
-    data = rows[1].split(";")
+def process_file(csv_text):
+    rows = csv_text.split('\n')
+    headers = rows[0].split(';')
 
-    return dict(zip(headers, data))
+    data = []
+
+    for row in rows[1:]:
+        values = row.split(';')
+        dic = dict(zip(headers, values))
+        data.append(dic)
+
+    return data

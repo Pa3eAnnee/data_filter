@@ -1,4 +1,4 @@
 firstname;lastname;age;apprentice;grades
-John;Doe;25,True;[85,90,95]
-Jane;Doe;30,False;[75,80,85]
+John;Doe;25;True;[85,90,95]
+Jane;Stallman;30;False;[75,80,85]
 Bob;Smith;35;True;[90,95,100]

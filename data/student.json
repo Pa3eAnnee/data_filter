@@ -1,0 +1,16 @@
+[
+  {
+  "firstname": "Jorj",
+  "lastname": "De Gaulle",
+  "age": 92,
+  "apprentice": true,
+  "grades": [10, 20, 18]
+},
+  {
+    "firstname": "Michel",
+    "lastname": "Torvalds",
+    "age": 10,
+    "apprentice": false,
+    "grades": [7, 28, 8]
+  }
+]

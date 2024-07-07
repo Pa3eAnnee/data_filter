@@ -1,2 +1,2 @@
 firstname;lastname;age;apprentice;grades
-John;Doe;25,True;[85,90,95]
+John;Doe;25;True;[85,90,95]

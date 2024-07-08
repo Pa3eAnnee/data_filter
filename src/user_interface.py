@@ -33,8 +33,8 @@ def main_menu():
     if choice == "1":
         file_path = select_file()
         if file_path:
-            print(f"Selected : {file_path}")
-
+            print(f"Loaded : {file_path}")
+            loaded_menu(file_path)
     elif choice == "2":
         print("Filtering data feature WIP")
     elif choice == "3":
@@ -47,3 +47,35 @@ def main_menu():
     else:
         print("Invalid choice. Please try again.")
         main_menu()
+
+def loaded_menu(file_path):
+    # Print the loaded file path
+    print("Loaded file:", file_path)
+
+    # Print the menu options
+    print("\nOptions:")
+    print("1. Display raw file")
+    print("2. Display structured file")
+    print("3. Save file")
+    print("4. Stats")
+    print("5. Filter")
+    print("6. Sort")
+
+    # Get the user's choice
+    choice = input("\nEnter your choice: ")
+
+    # Perform the corresponding action based on the user's choice
+    if choice == "1":
+        print("display_raw_file(file_path)")
+    elif choice == "2":
+        print("display_structured_file(data)")
+    elif choice == "3":
+        print("save_file(file_path, data)")
+    elif choice == "4":
+        print("stats(data)")
+    elif choice == "5":
+        print("filter_data(data)")
+    elif choice == "6":
+        print("sort_data(data)")
+    else:
+        print("Invalid choice")

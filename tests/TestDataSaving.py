@@ -2,17 +2,20 @@ import unittest
 import os
 import json
 import csv
+import xml.etree.ElementTree as ET
 from src.data_processing import process_file
-from src.data_io import save_data_json, save_data_csv
+from src.data_io import save_data_json, save_data_csv, save_data_xml
 
 class TestDataSaving(unittest.TestCase):
     def setUp(self):
         self.test_data_path = "tests/data/test_data.csv"
         self.output_json = "tests/data/output_test.json"
         self.output_csv = "tests/data/output_test.csv"
+        self.output_xml = "tests/data/output_test.xml"
+        self.output_yaml = "tests/data/output_test.yaml"
 
     def tearDown(self):
-        for file in [self.output_json, self.output_csv]:
+        for file in [self.output_json, self.output_csv, self.output_xml, self.output_yaml]:
             if os.path.exists(file):
                 os.remove(file)
 
@@ -40,6 +43,23 @@ class TestDataSaving(unittest.TestCase):
             saved_data = list(csv_reader)
         
         self.assertEqual(len(saved_data), len(data))
+
+    def test_save_to_xml(self):
+        data = process_file(self.test_data_path)
+        
+        save_data_xml(data, self.output_xml)
+        
+        self.assertTrue(os.path.exists(self.output_xml))
+        
+        tree = ET.parse(self.output_xml)
+        root = tree.getroot()
+        
+        self.assertEqual(len(root), len(data))
+        
+        with open(self.output_xml, 'r') as f:
+            xml_content = f.read()
+        self.assertIn('\n', xml_content)
+
 
 if __name__ == "__main__":
     unittest.main()

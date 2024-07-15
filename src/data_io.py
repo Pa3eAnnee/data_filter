@@ -2,6 +2,7 @@ import csv
 import json
 import xml.etree.ElementTree as ET
 import xml.dom.minidom
+import yaml
 
 
 def read_file(file_path):
@@ -33,6 +34,8 @@ def save_data_csv(data, filename):
         print(f"Data successfully saved to {filename}")
     except Exception as e:
         print(f"An error occurred while saving the file: {e}")
+
+
 def save_data_xml(data, filename):
     try:
         root = ET.Element("root")
@@ -54,4 +57,11 @@ def save_data_xml(data, filename):
     except Exception as e:
         print(f"An error occurred while saving the file: {e}")
 
+def save_data_yaml(data, filename):
+    try:
+        with open(filename, 'w') as f:
+            yaml.dump(data, f, default_flow_style=False)
+        print(f"Data successfully saved to {filename}")
+    except Exception as e:
+        print(f"An error occurred while saving the file: {e}")
 

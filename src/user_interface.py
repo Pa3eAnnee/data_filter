@@ -1,10 +1,12 @@
 import os
 
-from src.data_io import *
-from src.data_processing import *
-from src.data_statistics import *
+from src.data_filtering import filter_data
+from src.data_io import read_file, save_data_csv, save_data_json, save_data_xml, save_data_yaml
+from src.data_processing import process_file
+from src.data_statistics import calculate_stats
+from src.data_statistics import identify_field_type
 
-
+    
 def select_file():
     data_folder = "data"
     files = os.listdir(data_folder)
@@ -79,7 +81,9 @@ def loaded_menu(file_path):
         display_stats(stats)
         loaded_menu(file_path)
     elif choice == "5":
-        print("filter_data(data)")
+        data = process_file(file_path)
+        filter_menu(data)
+        loaded_menu(file_path)
     elif choice == "6":
         print("sort_data(data)")
     elif choice == "0":
@@ -151,3 +155,86 @@ def display_stats(stats):
             print(f"  Maximum value: {field_stats['max_value']}")
             print(f"  Average value: {field_stats['average_value']:.2f}")
             print(f"  Total items: {field_stats['total_items']}")
+
+
+def get_field_choice(data):
+    print("\nAvailable fields:")
+    for i, field in enumerate(data[0].keys(), 1):
+        print(f"{i}. {field}")
+    field_choice = input("Enter the number of the field to filter on: ")
+    return list(data[0].keys())[int(field_choice) - 1]
+
+def get_operation_choice(operations):
+    for i, op in enumerate(operations, 1):
+        print(f"{i}. {op}")
+    operation_choice = input("Enter the number of the comparison operation: ")
+    return operations[int(operation_choice) - 1]
+
+def string_filter_menu():
+    print("\nString comparison operations:")
+    operations = [
+        "Equal to (==)", "Not equal to (!=)", 
+        "Lexicographically greater than (>)", "Lexicographically less than (<)",
+        "Lexicographically greater than or equal to (>=)", "Lexicographically less than or equal to (<=)",
+        "Contains", "Starts with", "Ends with"
+    ]
+    operation = get_operation_choice(operations)
+    return operation.split('(')[0].strip().lower().replace(' ', '_')
+
+def boolean_filter_menu():
+    print("\nBoolean comparison operations:")
+    operations = ["Equal to (==)", "Not equal to (!=)"]
+    operation = get_operation_choice(operations)
+    return operation.split('(')[1].strip(')')
+
+def numeric_filter_menu():
+    print("\nNumeric comparison operations:")
+    operations = [
+        "Equal to (==)", "Not equal to (!=)", 
+        "Greater than (>)", "Less than (<)",
+        "Greater than or equal to (>=)", "Less than or equal to (<=)"
+    ]
+    operation = get_operation_choice(operations)
+    return operation.split('(')[1].strip(')')
+
+def list_filter_menu():
+    print("\nList comparison operations:")
+    operations = [
+        "Equal to (==)", "Not equal to (!=)", 
+        "Length greater than (>)", "Length less than (<)",
+        "Length greater than or equal to (>=)", "Length less than or equal to (<=)"
+    ]
+    operation = get_operation_choice(operations)
+    return operation.split('(')[1].strip(')')
+
+def get_filter_value(field_type):
+    if field_type == "boolean":
+        value = input("Enter the value to compare with (true/false): ").lower()
+        return value == "true"
+    else:
+        return input("Enter the value to compare with: ")
+
+def filter_menu(data):
+    field = get_field_choice(data)
+    field_values = [item[field] for item in data if field in item]
+    field_type = identify_field_type(field_values)
+
+    if field_type == "string":
+        operation = string_filter_menu()
+    elif field_type == "boolean":
+        operation = boolean_filter_menu()
+    elif field_type == "numeric":
+        operation = numeric_filter_menu()
+    elif field_type == "list":
+        operation = list_filter_menu()
+
+    value = get_filter_value(field_type)
+    filtered_result = filter_data(data, field, operation, value)
+
+    if filtered_result == "Nothing found":
+        print(filtered_result)
+    else:
+        print("Filtered data:")
+        print(filtered_result)
+
+    return filtered_result

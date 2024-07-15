@@ -18,12 +18,12 @@ Votre programme devra pouvoir afficher la structure, c’est à dire les noms de
 
 Votre programme doit permettre de filtrer les données, pour ne garder qu’un sous-ensemble des données. Le filtrage doit au minimum permettre de tester en comparant avec une valeur :
 
-1. dans le cas des chaînes de caractères, on comparera en utilisant l’ordre lexicographique
-2. dans le cas des listes, on utilise le nombre d’éléments.
+1. dans le cas des chaînes de caractères, on comparera en utilisant l’ordre lexicographique  - Fait
+2. dans le cas des listes, on utilise le nombre d’éléments.  - Fait
 
 Pour aller plus loin, vous pourrez permettre d’autres critères de filtrage :
 
-* pour les chaînes de caractères : contient, commence/finit par
+* pour les chaînes de caractères : contient, commence/finit par  - Fait
 * pour les listes, des règles plus complexes : tous les éléments, le min/max/moyenne
 
 Pour aller plus loin, vous pouvez aussi permettre de comparer deux champs entre eux, par exemple :

@@ -1,4 +1,5 @@
 import re
+import json
 
 def filter_data(data, filters):
     filtered_data = data
@@ -89,3 +90,16 @@ def compare_list(item_value, operation, compare_value):
         return str(compare_value) in [str(x) for x in item_value]
     else:
         return False
+    
+
+def save_filtered_data(filtered_data, filename):
+    if isinstance(filtered_data, str):
+        print("No data to save.")
+        return
+
+    try:
+        with open(filename, 'w') as f:
+            json.dump(filtered_data, f, indent=4)
+        print(f"Filtered data saved to {filename}")
+    except IOError as e:
+        print(f"An error occurred while saving the file: {e}")

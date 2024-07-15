@@ -305,5 +305,75 @@ def filter_menu(data):
     else:
         print("Filtered data:")
         print(filtered_result)
+        if input("Do you want to save the filtered results? (y/n): ").lower() == 'y':
+            save_filtered_results(filtered_result)
 
     return filtered_result
+
+
+def save_filtered_results(filtered_data, test_format=None, test_filename=None):
+    if filtered_data == "No results...":
+        print("No data to save.")
+        return
+
+    print("\nSave options:")
+    print("1. Save as JSON")
+    print("2. Save as CSV")
+    print("3. Save as XML")
+    print("4. Save as YAML")
+    
+    save_choice = test_format or input("Enter your choice: ")
+    filename = test_filename or input("Enter the filename to save: ")
+    
+    if save_choice == "1":
+        if not filename.lower().endswith('.json'):
+            filename += '.json'
+        save_data_json(filtered_data, filename)
+    elif save_choice == "2":
+        if not filename.lower().endswith('.csv'):
+            filename += '.csv'
+        save_data_csv(filtered_data, filename)
+    elif save_choice == "3":
+        if not filename.lower().endswith('.xml'):
+            filename += '.xml'
+        save_data_xml(filtered_data, filename)
+    elif save_choice == "4":
+        if not filename.lower().endswith('.yaml'):
+            filename += '.yaml'
+        save_data_yaml(filtered_data, filename)
+    else:
+        print("Invalid choice. File not saved.")
+
+
+def save_filtered_results(filtered_data, test_format=None, test_filename=None):
+    if filtered_data == "No results...":
+        print("No data to save.")
+        return
+
+    print("\nSave options:")
+    print("1. Save as JSON")
+    print("2. Save as CSV")
+    print("3. Save as XML")
+    print("4. Save as YAML")
+    
+    save_choice = test_format or input("Enter your choice: ")
+    filename = test_filename or input("Enter the filename to save: ")
+    
+    if save_choice == "1":
+        if not filename.lower().endswith('.json'):
+            filename += '.json'
+        save_data_json(filtered_data, filename)
+    elif save_choice == "2":
+        if not filename.lower().endswith('.csv'):
+            filename += '.csv'
+        save_data_csv(filtered_data, filename)
+    elif save_choice == "3":
+        if not filename.lower().endswith('.xml'):
+            filename += '.xml'
+        save_data_xml(filtered_data, filename)
+    elif save_choice == "4":
+        if not filename.lower().endswith('.yaml'):
+            filename += '.yaml'
+        save_data_yaml(filtered_data, filename)
+    else:
+        print("Invalid choice. File not saved.")

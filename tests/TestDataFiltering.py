@@ -1,5 +1,11 @@
+import csv
+import os
 import unittest
+import json
+import yaml
 from src.data_filtering import filter_data, compare_values, compare_string, compare_numeric, compare_boolean, compare_list
+from src.user_interface import save_filtered_results
+import xml.etree.ElementTree as ET
 
 class TestDataFiltering(unittest.TestCase):
 
@@ -146,6 +152,71 @@ class TestDataFiltering(unittest.TestCase):
         result = filter_data(self.test_data, [("grades", "contains", 100)])
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]['name'], 'Charlie')
+
+    def test_multiple_filters(self):
+        result = filter_data(self.test_data, [
+            ("age", "greater_than", 30),
+            ("is_student", "equal_to", "true")
+        ])
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]['name'], 'Charlie')
+
+    def test_save_filtered_results_json(self):
+        filtered_data = filter_data(self.test_data, [("age", "greater_than", 30)])
+        filename = "test_filtered_data.json"
+        save_filtered_results(filtered_data, test_format="1", test_filename=filename)
+        
+        self.assertTrue(os.path.exists(filename))
+        with open(filename, 'r') as f:
+            saved_data = json.load(f)
+        self.assertEqual(filtered_data, saved_data)
+        os.remove(filename)
+
+    def test_save_filtered_results_csv(self):
+        filtered_data = filter_data(self.test_data, [("is_student", "equal_to", "true")])
+        filename = "test_filtered_data.csv"
+        save_filtered_results(filtered_data, test_format="2", test_filename=filename)
+        
+        self.assertTrue(os.path.exists(filename))
+        with open(filename, 'r', newline='') as f:
+            reader = csv.DictReader(f, delimiter=';')  # Specify the delimiter
+            saved_data = list(reader)
+        self.assertEqual(len(filtered_data), len(saved_data))
+        self.assertEqual(set(filtered_data[0].keys()), set(saved_data[0].keys()))  # Use set for unordered comparison
+        os.remove(filename)
+
+    def test_save_filtered_results_xml(self):
+        filtered_data = filter_data(self.test_data, [("name", "contains", "a")])
+        filename = "test_filtered_data.xml"
+        save_filtered_results(filtered_data, test_format="3", test_filename=filename)
+        
+        self.assertTrue(os.path.exists(filename))
+        tree = ET.parse(filename)
+        root = tree.getroot()
+        saved_data = [child.attrib for child in root]
+        self.assertEqual(len(filtered_data), len(saved_data))
+        os.remove(filename)
+
+    def test_save_filtered_results_yaml(self):
+        filtered_data = filter_data(self.test_data, [("grades", "contains", 100)])
+        filename = "test_filtered_data.yaml"
+        save_filtered_results(filtered_data, test_format="4", test_filename=filename)
+        
+        self.assertTrue(os.path.exists(filename))
+        with open(filename, 'r') as f:
+            saved_data = yaml.safe_load(f)
+        self.assertEqual(filtered_data, saved_data)
+        os.remove(filename)
+
+    def test_save_filtered_results_no_data(self):
+        filtered_data = "No results..."
+        result = save_filtered_results(filtered_data)
+        self.assertIsNone(result)
+
+    def test_save_filtered_results_invalid_choice(self):
+        filtered_data = filter_data(self.test_data, [("age", "greater_than", 30)])
+        result = save_filtered_results(filtered_data, test_format="5", test_filename="invalid.txt")
+        self.assertIsNone(result)
 
 if __name__ == '__main__':
     unittest.main()

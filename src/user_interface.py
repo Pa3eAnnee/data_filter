@@ -1,7 +1,7 @@
 import os
 
-from src.data_io import read_file
-from src.data_processing import process_file
+from src.data_io import *
+from src.data_processing import *
 
 
 def select_file():
@@ -69,7 +69,9 @@ def loaded_menu(file_path):
         print(process_file(file_path))
         loaded_menu(file_path)
     elif choice == "3":
-        print("save_file(file_path, data)")
+        data = process_file(file_path)
+        save_file(file_path, data)
+        loaded_menu(file_path)
     elif choice == "4":
         print("stats(data)")
     elif choice == "5":
@@ -81,3 +83,27 @@ def loaded_menu(file_path):
         return
     else:
         print("Invalid choice")
+
+
+def save_file(file_path, data):
+    print("\nSave options:")
+    print(data)
+    print("1. Save as JSON")
+    print("2. Save as CSV")
+    
+    save_choice = input("Enter your choice (1 or 2): ")
+    
+    if save_choice == "1":
+        filename = input("Enter the filename to save (including .json extension): ")
+        if not filename.lower().endswith('.json'):
+            filename += '.json'
+        save_path = os.path.join(os.path.dirname(file_path), filename)
+        save_data_json(data, save_path)
+    elif save_choice == "2":
+        filename = input("Enter the filename to save (including .csv extension): ")
+        if not filename.lower().endswith('.csv'):
+            filename += '.csv'
+        save_path = os.path.join(os.path.dirname(file_path), filename)
+        save_data_csv(data, save_path)
+    else:
+        print("Invalid choice. File not saved.")

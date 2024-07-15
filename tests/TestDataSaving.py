@@ -5,7 +5,7 @@ import csv
 import xml.etree.ElementTree as ET
 import yaml
 from src.data_processing import process_file
-from src.data_io import save_data_json, save_data_csv, save_data_xml
+from src.data_io import save_data_json, save_data_csv, save_data_xml, save_data_yaml
 
 class TestDataSaving(unittest.TestCase):
     def setUp(self):

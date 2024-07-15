@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <person>
+    <firstname>John</firstname>
+    <lastname>Doe</lastname>
+    <age>25</age>
+    <apprentice>true</apprentice>
+    <grades>[85,90,95]</grades>
+  </person>
+</root>

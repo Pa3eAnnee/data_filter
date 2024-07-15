@@ -156,13 +156,20 @@ def display_stats(stats):
             print(f"  Average value: {field_stats['average_value']:.2f}")
             print(f"  Total items: {field_stats['total_items']}")
 
-
 def get_field_choice(data):
     print("\nAvailable fields:")
-    for i, field in enumerate(data[0].keys(), 1):
-        print(f"{i}. {field}")
+    fields = list(data[0].keys())
+    for i, field in enumerate(fields, 1):
+        field_values = [item[field] for item in data if field in item]
+        field_type = identify_field_type(field_values)
+        print(f"{i}. {field} (Type: {field_type})")
+    
     field_choice = input("Enter the number of the field to filter on: ")
-    return list(data[0].keys())[int(field_choice) - 1]
+    chosen_field = fields[int(field_choice) - 1]
+    field_values = [item[chosen_field] for item in data if chosen_field in item]
+    field_type = identify_field_type(field_values)
+    
+    return chosen_field, field_type
 
 def get_operation_choice(operations):
     for i, op in enumerate(operations, 1):
@@ -173,51 +180,66 @@ def get_operation_choice(operations):
 def string_filter_menu():
     print("\nString comparison operations:")
     operations = [
-        "Equal to (==)", "Not equal to (!=)", 
-        "Lexicographically greater than (>)", "Lexicographically less than (<)",
-        "Lexicographically greater than or equal to (>=)", "Lexicographically less than or equal to (<=)",
-        "Contains", "Starts with", "Ends with"
+        "Equal to (==) - Exact match",
+        "Not equal to (!=) - Doesn't match exactly",
+        "Lexicographically greater than (>) - Comes after in dictionary order",
+        "Lexicographically less than (<) - Comes before in dictionary order",
+        "Contains - Includes the given text (case-insensitive)",
+        "Starts with - Begins with the given text (case-insensitive)",
+        "Ends with - Ends with the given text (case-insensitive)"
     ]
     operation = get_operation_choice(operations)
-    return operation.split('(')[0].strip().lower().replace(' ', '_')
+    return operation.split('-')[0].strip().lower().replace(' ', '_')
 
 def boolean_filter_menu():
     print("\nBoolean comparison operations:")
-    operations = ["Equal to (==)", "Not equal to (!=)"]
+    operations = [
+        "Equal to (==) - Matches the boolean value",
+        "Not equal to (!=) - Doesn't match the boolean value"
+    ]
     operation = get_operation_choice(operations)
-    return operation.split('(')[1].strip(')')
+    return operation.split('-')[0].strip().lower().replace(' ', '_')
 
 def numeric_filter_menu():
     print("\nNumeric comparison operations:")
     operations = [
-        "Equal to (==)", "Not equal to (!=)", 
-        "Greater than (>)", "Less than (<)",
-        "Greater than or equal to (>=)", "Less than or equal to (<=)"
+        "Equal to (==) - Exact match",
+        "Not equal to (!=) - Doesn't match exactly",
+        "Greater than (>) - Strictly greater than the given value",
+        "Less than (<) - Strictly less than the given value",
+        "Greater than or equal to (>=) - Greater than or equal to the given value",
+        "Less than or equal to (<=) - Less than or equal to the given value"
     ]
     operation = get_operation_choice(operations)
-    return operation.split('(')[1].strip(')')
+    return operation.split('-')[0].strip().lower().replace(' ', '_')
 
 def list_filter_menu():
     print("\nList comparison operations:")
     operations = [
-        "Equal to (==)", "Not equal to (!=)", 
-        "Length greater than (>)", "Length less than (<)",
-        "Length greater than or equal to (>=)", "Length less than or equal to (<=)"
+        "Equal to (==) - Exact match of list length",
+        "Not equal to (!=) - Doesn't match list length exactly",
+        "Length greater than (>) - List length strictly greater than the given value",
+        "Length less than (<) - List length strictly less than the given value",
+        "Length greater than or equal to (>=) - List length greater than or equal to the given value",
+        "Length less than or equal to (<=) - List length less than or equal to the given value"
     ]
     operation = get_operation_choice(operations)
-    return operation.split('(')[1].strip(')')
+    return operation.split('-')[0].strip().lower().replace(' ', '_')
 
 def get_filter_value(field_type):
     if field_type == "boolean":
         value = input("Enter the value to compare with (true/false): ").lower()
         return value == "true"
+    elif field_type == "numeric":
+        return float(input("Enter the numeric value to compare with: "))
+    elif field_type == "list":
+        return int(input("Enter the list length to compare with: "))
     else:
         return input("Enter the value to compare with: ")
 
 def filter_menu(data):
-    field = get_field_choice(data)
-    field_values = [item[field] for item in data if field in item]
-    field_type = identify_field_type(field_values)
+    field, field_type = get_field_choice(data)
+    print(f"\nSelected field: {field} (Type: {field_type})")
 
     if field_type == "string":
         operation = string_filter_menu()
@@ -227,6 +249,9 @@ def filter_menu(data):
         operation = numeric_filter_menu()
     elif field_type == "list":
         operation = list_filter_menu()
+    else:
+        print(f"Unsupported field type: {field_type}")
+        return None
 
     value = get_filter_value(field_type)
     filtered_result = filter_data(data, field, operation, value)

@@ -5,16 +5,12 @@ def identify_field_type(values):
     if not non_none_values:
         return "unknown"
     if all(isinstance(v, bool) or (isinstance(v, str) and str(v).lower() in ['true', 'false']) or v in [0, 1] for v in non_none_values):
-        print(f"{non_none_values} is bool")
         return "boolean"
     elif all(isinstance(v, (int, float)) or (isinstance(v, str) and v.replace('.', '').isdigit()) for v in non_none_values):
-        print(f"{non_none_values} is numeric")
         return "numeric"
     elif all(isinstance(v, list) or (isinstance(v, str) and v.startswith('[') and v.endswith(']')) for v in non_none_values):
-        print(f"{non_none_values} is list")
         return "list"
     else:
-        print(f"{non_none_values} is string")
         return "string"
     
 

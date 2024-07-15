@@ -91,6 +91,7 @@ def save_file(file_path, data):
     print("1. Save as JSON")
     print("2. Save as CSV")
     print("3. Save as XML")
+    print("4. Save as YAML")
     
     save_choice = input("Enter your choice: ")
     
@@ -112,5 +113,11 @@ def save_file(file_path, data):
             filename += '.xml'
         save_path = os.path.join(os.path.dirname(file_path), filename)
         save_data_xml(data, save_path)
+    elif save_choice == "4":
+        filename = input("Enter the filename to save (including .yaml extension): ")
+        if not filename.lower().endswith('.yaml'):
+            filename += '.yaml'
+        save_path = os.path.join(os.path.dirname(file_path), filename)
+        save_data_yaml(data, save_path)
     else:
         print("Invalid choice. File not saved.")

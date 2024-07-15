@@ -3,6 +3,7 @@ import os
 import json
 import csv
 import xml.etree.ElementTree as ET
+import yaml
 from src.data_processing import process_file
 from src.data_io import save_data_json, save_data_csv, save_data_xml
 
@@ -59,7 +60,18 @@ class TestDataSaving(unittest.TestCase):
         with open(self.output_xml, 'r') as f:
             xml_content = f.read()
         self.assertIn('\n', xml_content)
-
+    
+    def test_save_to_yaml(self):
+        data = process_file(self.test_data_path)
+        
+        save_data_yaml(data, self.output_yaml)
+        
+        self.assertTrue(os.path.exists(self.output_yaml))
+        
+        with open(self.output_yaml, 'r') as f:
+            saved_data = yaml.safe_load(f)
+        
+        self.assertEqual(len(saved_data), len(data))
 
 if __name__ == "__main__":
     unittest.main()

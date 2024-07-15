@@ -1,6 +1,6 @@
 # Manipuler les données (charger, sauvegarder, filtrer, trier et afficher des données)
 import json
-import csv
+import xml.etree.ElementTree as ET
 
 from src.data_io import read_file
 
@@ -49,12 +49,36 @@ def process_csv(filepath):
     return data
 
 
+
+def process_xml(filepath):
+    tree = ET.parse(filepath)
+    root = tree.getroot()
+    
+    data = []
+    
+    for item in root:
+        dic = {}
+        for child in item:
+            value = child.text.strip() if child.text else ""
+            if is_integer(value):
+                dic[child.tag] = int(value)
+            elif is_boolean(value):
+                dic[child.tag] = value.lower() in ('true', '1')
+            else:
+                dic[child.tag] = value
+        data.append(dic)
+    
+    return data
+
+
 def process_file(filepath):
     ext = check_extension(filepath)
     if ext == "csv":
         return process_csv(filepath)
     if ext == "json":
         return process_json(filepath)
+    if ext == "xml":
+        return process_xml(filepath)
     else:
         raise ValueError("Invalid file format")
 

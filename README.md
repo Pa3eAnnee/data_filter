@@ -4,15 +4,15 @@ Le but de ce projet est de créer un programme permettant de charger, sauvegarde
 
 ## Chargement/Sauvegarde
 
-Votre programme doit pouvoir charger et sauvegarder les données au minimum aux formats CSV et JSON. Pour aller plus loin, il pourra également proposer le XML et le YAML.
+Votre programme doit pouvoir charger et sauvegarder les données au minimum aux formats CSV et JSON. Pour aller plus loin, il pourra également proposer le XML et le YAML. - Fait
 
 ## Stats
 
 Votre programme devra pouvoir afficher la structure, c’est à dire les noms des champs, avec :
 
-* pour chacun des champs représentant un nombre : le min, le max, et la valeur moyenne
-* pour chacun des champs représentant un booléen : le % de vrai et de faux
-* pour chacun des champs représentant une liste : les mêmes stats que pour ceux représentant un nombre, en considérant ici la taille de la liste.
+* pour chacun des champs représentant un nombre : le min, le max, et la valeur moyenne - Fait
+* pour chacun des champs représentant un booléen : le % de vrai et de faux - Fait
+* pour chacun des champs représentant une liste : les mêmes stats que pour ceux représentant un nombre, en considérant ici la taille de la liste. - Fait
 
 ## Filtrage
 
@@ -47,7 +47,7 @@ Votre programme doit également pouvoir trier les éléments, au minimum par les
 La façon d’appliquer les différentes opérations est libre :
 
 * ligne de commande
-* menu
+* menu <--
 * interface graphique
 
 La qualité de l’interface et la facilité à l’utiliser entrent en compte dans la notation.

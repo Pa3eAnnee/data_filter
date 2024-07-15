@@ -1,3 +1,4 @@
+import math
 import unittest
 from src.data_statistics import identify_field_type, calculate_numeric_stats, calculate_boolean_stats, calculate_list_stats, calculate_stats
 
@@ -81,6 +82,87 @@ class TestDataStatistics(unittest.TestCase):
         self.assertEqual(stats["height"]["min"], 1.68)
         self.assertEqual(stats["height"]["max"], 1.82)
         self.assertAlmostEqual(stats["height"]["average"], 1.75, places=2)
+
+
+    def test_empty_data(self):
+        empty_data = []
+        stats = calculate_stats(empty_data)
+        self.assertEqual(stats, {}, "Empty data should return empty statistics")
+
+    def test_single_item_data(self):
+        single_item_data = [{"name": "John", "age": 30, "is_student": True, "grades": [90]}]
+        stats = calculate_stats(single_item_data)
+        self.assertEqual(stats["name"]["type"], "string")
+        self.assertEqual(stats["age"]["min"], 30)
+        self.assertEqual(stats["age"]["max"], 30)
+        self.assertEqual(stats["age"]["average"], 30)
+        self.assertEqual(stats["is_student"]["true_percentage"], 100)
+        self.assertEqual(stats["grades"]["min_length"], 1)
+        self.assertEqual(stats["grades"]["max_length"], 1)
+        self.assertEqual(stats["grades"]["average_length"], 1)
+        self.assertEqual(stats["grades"]["min_value"], 90)
+        self.assertEqual(stats["grades"]["max_value"], 90)
+        self.assertEqual(stats["grades"]["average_value"], 90)
+
+    def test_missing_values(self):
+        data_with_missing = [
+            {"name": "John", "age": 30, "grades": [80, 90]},
+            {"name": "Jane", "grades": [70, 80, 90]},
+            {"name": "Bob", "age": 25, "grades": []}
+        ]
+        stats = calculate_stats(data_with_missing)
+        self.assertNotIn("is_student", stats, "Missing field should not appear in stats")
+        self.assertEqual(stats["age"]["min"], 25, "Age stats should only consider available values")
+        self.assertEqual(stats["age"]["max"], 30, "Age stats should only consider available values")
+        self.assertEqual(stats["grades"]["min_length"], 0, "Should handle empty list")
+
+    def test_mixed_types(self):
+        mixed_data = [
+            {"value": 10},
+            {"value": "20"},
+            {"value": True},
+            {"value": [30, 40]}
+        ]
+        stats = calculate_stats(mixed_data)
+        self.assertEqual(stats["value"]["type"], "string", "Mixed types should be treated as strings")
+
+    def test_extreme_values(self):
+        extreme_data = [
+            {"age": 0, "score": float('inf')},
+            {"age": 999, "score": float('-inf')},
+            {"age": 50, "score": 1e20}
+        ]
+        stats = calculate_stats(extreme_data)
+        self.assertEqual(stats["age"]["min"], 0)
+        self.assertEqual(stats["age"]["max"], 999)
+        self.assertTrue(math.isinf(stats["score"]["max"]))
+        self.assertTrue(math.isinf(stats["score"]["min"]))
+
+    def test_boolean_edge_cases(self):
+        bool_data = [
+            {"flag": True},
+            {"flag": False},
+            {"flag": "True"},
+            {"flag": "FALSE"},
+            {"flag": 1},
+            {"flag": 0}
+        ]
+        stats = calculate_stats(bool_data)
+        self.assertAlmostEqual(stats["flag"]["true_percentage"], 50, places=2)
+
+    def test_list_edge_cases(self):
+        list_data = [
+            {"grades": []},
+            {"grades": [1]},
+            {"grades": [1, 2, 3, 4, 5]},
+            {"grades": [100] * 1000}
+        ]
+        stats = calculate_stats(list_data)
+        self.assertEqual(stats["grades"]["min_length"], 0)
+        self.assertEqual(stats["grades"]["max_length"], 1000)
+        self.assertEqual(stats["grades"]["min_value"], 1)
+        self.assertEqual(stats["grades"]["max_value"], 100)
+
 
 if __name__ == '__main__':
     unittest.main()

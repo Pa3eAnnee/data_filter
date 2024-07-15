@@ -8,12 +8,22 @@ from src.data_io import read_file
 def check_extension(filepath):
     return filepath.split(".")[-1]
 
+def is_integer(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+    
+def is_boolean(s):
+    return s.lower() in ('true', 'false', '1', '0')
+
+
 def process_json(filepath):
     with open(filepath, "r") as file:
         data = json.load(file)
 
     return data
-
 
 def process_csv(filepath):
     raw_data = read_file(filepath)
@@ -23,9 +33,18 @@ def process_csv(filepath):
     data = []
 
     for row in rows[1:]:
-        values = row.split(";")
-        dic = dict(zip(headers, values))
-        data.append(dic)
+        if row.strip():
+            values = row.split(";")
+            dic = {}
+            for header, value in zip(headers, values):
+                value = value.strip().strip('"')
+                if is_integer(value):
+                    dic[header] = int(value)
+                elif is_boolean(value):
+                    dic[header] = value.lower() in ('true', '1')
+                else:
+                    dic[header] = value
+            data.append(dic)
 
     return data
 

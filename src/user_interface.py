@@ -90,8 +90,9 @@ def save_file(file_path, data):
     print(data)
     print("1. Save as JSON")
     print("2. Save as CSV")
+    print("3. Save as XML")
     
-    save_choice = input("Enter your choice (1 or 2): ")
+    save_choice = input("Enter your choice: ")
     
     if save_choice == "1":
         filename = input("Enter the filename to save (including .json extension): ")
@@ -105,5 +106,11 @@ def save_file(file_path, data):
             filename += '.csv'
         save_path = os.path.join(os.path.dirname(file_path), filename)
         save_data_csv(data, save_path)
+    elif save_choice == "3":
+        filename = input("Enter the filename to save (including .xml extension): ")
+        if not filename.lower().endswith('.xml'):
+            filename += '.xml'
+        save_path = os.path.join(os.path.dirname(file_path), filename)
+        save_data_xml(data, save_path)
     else:
         print("Invalid choice. File not saved.")

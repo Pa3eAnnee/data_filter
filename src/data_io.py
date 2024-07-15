@@ -1,5 +1,7 @@
 import csv
 import json
+import xml.etree.ElementTree as ET
+import xml.dom.minidom
 
 
 def read_file(file_path):
@@ -33,3 +35,28 @@ def save_data_csv(data, filename):
         print(f"Data successfully saved to {filename}")
     except Exception as e:
         print(f"An error occurred while saving the file: {e}")
+def save_data_xml(data, filename):
+    try:
+        root = ET.Element("root")
+        for item in data:
+            item_elem = ET.SubElement(root, "item")
+            for key, value in item.items():
+                child = ET.SubElement(item_elem, key)
+                child.text = str(value)
+        
+        # Convert the ElementTree to a string
+        xml_string = ET.tostring(root, encoding='unicode')
+        
+        # Use minidom to pretty-print the XML
+        dom = xml.dom.minidom.parseString(xml_string)
+        pretty_xml = dom.toprettyxml(indent="  ")
+        
+        # Write the formatted XML to the file
+        with open(filename, 'w', encoding='utf-8') as f:
+            f.write(pretty_xml)
+        
+        print(f"Data successfully saved to {filename}")
+    except Exception as e:
+        print(f"An error occurred while saving the file: {e}")
+
+

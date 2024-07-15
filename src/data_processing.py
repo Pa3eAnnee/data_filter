@@ -1,5 +1,6 @@
 # Manipuler les données (charger, sauvegarder, filtrer, trier et afficher des données)
 import json
+import yaml
 import xml.etree.ElementTree as ET
 
 from src.data_io import read_file
@@ -71,6 +72,22 @@ def process_xml(filepath):
     return data
 
 
+def process_yaml(filepath):
+    with open(filepath, 'r') as file:
+        data = yaml.safe_load(file)
+    
+    # If the YAML file contains a list at the root level, process each item
+    if isinstance(data, list):
+        for item in data:
+            for key, value in item.items():
+                if isinstance(value, str):
+                    if is_integer(value):
+                        item[key] = int(value)
+                    elif is_boolean(value):
+                        item[key] = value.lower() in ('true', '1')
+    
+    return data
+
 def process_file(filepath):
     ext = check_extension(filepath)
     if ext == "csv":
@@ -79,6 +96,8 @@ def process_file(filepath):
         return process_json(filepath)
     if ext == "xml":
         return process_xml(filepath)
+    if ext == "yaml":
+        return process_yaml(filepath)
     else:
         raise ValueError("Invalid file format")
 

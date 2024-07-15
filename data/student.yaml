@@ -1,0 +1,16 @@
+- age: 92
+  apprentice: true
+  firstname: Jorj
+  grades:
+  - 10
+  - 20
+  - 18
+  lastname: De Gaulle
+- age: 10
+  apprentice: false
+  firstname: Michel
+  grades:
+  - 7
+  - 28
+  - 8
+  lastname: Torvalds

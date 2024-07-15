@@ -180,35 +180,39 @@ def get_operation_choice(operations):
 def string_filter_menu():
     print("\nString comparison operations:")
     operations = [
-        "Equal to (==) - Exact match",
-        "Not equal to (!=) - Doesn't match exactly",
-        "Lexicographically greater than (>) - Comes after in dictionary order",
-        "Lexicographically less than (<) - Comes before in dictionary order",
+        "Equal to - Exact match",
+        "Not equal to - Doesn't match exactly",
+        "Lexicographically greater than - Comes after in dictionary order",
+        "Lexicographically less than - Comes before in dictionary order",
         "Contains - Includes the given text (case-insensitive)",
         "Starts with - Begins with the given text (case-insensitive)",
-        "Ends with - Ends with the given text (case-insensitive)"
+        "Ends with - Ends with the given text (case-insensitive)",
+        "Regex - Use a regular expression"
     ]
     operation = get_operation_choice(operations)
     return operation.split('-')[0].strip().lower().replace(' ', '_')
 
 def boolean_filter_menu():
-    print("\nBoolean comparison operations:")
-    operations = [
-        "Equal to (==) - Matches the boolean value",
-        "Not equal to (!=) - Doesn't match the boolean value"
-    ]
-    operation = get_operation_choice(operations)
-    return operation.split('-')[0].strip().lower().replace(' ', '_')
+    print("\nBoolean filter:")
+    print("1. Show True values")
+    print("2. Show False values")
+    while True:
+        choice = input("Enter your choice (1 or 2): ").strip().lower()
+        if choice in ['1', '2']:
+            return "true" if choice == "1" else "false"
+        else:
+            print("Invalid choice. Please enter 1 or 2.")
 
 def numeric_filter_menu():
     print("\nNumeric comparison operations:")
     operations = [
-        "Equal to (==) - Exact match",
-        "Not equal to (!=) - Doesn't match exactly",
-        "Greater than (>) - Strictly greater than the given value",
-        "Less than (<) - Strictly less than the given value",
-        "Greater than or equal to (>=) - Greater than or equal to the given value",
-        "Less than or equal to (<=) - Less than or equal to the given value"
+        "Equal to - Exact match",
+        "Not equal to - Doesn't match exactly",
+        "Greater than - Strictly greater than the given value",
+        "Less than - Strictly less than the given value",
+        "Greater than or equal to - Greater than or equal to the given value",
+        "Less than or equal to - Less than or equal to the given value",
+        "Range - Between two values"
     ]
     operation = get_operation_choice(operations)
     return operation.split('-')[0].strip().lower().replace(' ', '_')
@@ -216,26 +220,67 @@ def numeric_filter_menu():
 def list_filter_menu():
     print("\nList comparison operations:")
     operations = [
-        "Equal to (==) - Exact match of list length",
-        "Not equal to (!=) - Doesn't match list length exactly",
-        "Length greater than (>) - List length strictly greater than the given value",
-        "Length less than (<) - List length strictly less than the given value",
-        "Length greater than or equal to (>=) - List length greater than or equal to the given value",
-        "Length less than or equal to (<=) - List length less than or equal to the given value"
+        "Equal to - Exact match of list length",
+        "Not equal to - Doesn't match list length exactly",
+        "Length greater than - List length strictly greater than the given value",
+        "Length less than - List length strictly less than the given value",
+        "Length greater than or equal to - List length greater than or equal to the given value",
+        "Length less than or equal to - List length less than or equal to the given value",
+        "Contains - List contains a specific value"
     ]
     operation = get_operation_choice(operations)
     return operation.split('-')[0].strip().lower().replace(' ', '_')
 
-def get_filter_value(field_type):
+def get_filter_value(field_type, operation):
     if field_type == "boolean":
-        value = input("Enter the value to compare with (true/false): ").lower()
-        return value == "true"
+        return operation  # operation contient déjà "true" ou "false"
     elif field_type == "numeric":
-        return float(input("Enter the numeric value to compare with: "))
+        if operation == "range":
+            min_val = float(input("Enter the minimum value: "))
+            max_val = float(input("Enter the maximum value: "))
+            return (min_val, max_val)
+        else:
+            return float(input("Enter the numeric value to compare with: "))
     elif field_type == "list":
-        return int(input("Enter the list length to compare with: "))
+        if operation == "contains":
+            return input("Enter the value to search for in the list: ")
+        else:
+            return int(input("Enter the list length to compare with: "))
     else:
         return input("Enter the value to compare with: ")
+
+
+def apply_multiple_filters(data):
+    filters = []
+    while True:
+        field, field_type = get_field_choice(data)
+        print(f"\nSelected field: {field} (Type: {field_type})")
+
+        if field_type == "string":
+            operation = string_filter_menu()
+        elif field_type == "boolean":
+            operation = boolean_filter_menu()
+        elif field_type == "numeric":
+            operation = numeric_filter_menu()
+        elif field_type == "list":
+            operation = list_filter_menu()
+        else:
+            print(f"Unsupported field type: {field_type}")
+            continue
+
+        value = get_filter_value(field_type, operation)
+        filters.append((field, operation, value))
+
+        filtered_data = filter_data(data, filters)
+        if filtered_data == "No results...":
+            print(filtered_data)
+            break
+
+        print(f"Number of items after filtering: {len(filtered_data)}")
+        if input("Apply another filter? (y/n): ").lower() != 'y':
+            break
+
+    return filtered_data
 
 def filter_menu(data):
     field, field_type = get_field_choice(data)
@@ -253,10 +298,9 @@ def filter_menu(data):
         print(f"Unsupported field type: {field_type}")
         return None
 
-    value = get_filter_value(field_type)
-    filtered_result = filter_data(data, field, operation, value)
-
-    if filtered_result == "Nothing found":
+    value = get_filter_value(field_type, operation)
+    filtered_result = filter_data(data, [(field, operation, value)])
+    if filtered_result == "No results...":
         print(filtered_result)
     else:
         print("Filtered data:")

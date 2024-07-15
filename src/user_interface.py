@@ -2,6 +2,7 @@ import os
 
 from src.data_io import *
 from src.data_processing import *
+from src.data_statistics import *
 
 
 def select_file():
@@ -73,7 +74,10 @@ def loaded_menu(file_path):
         save_file(file_path, data)
         loaded_menu(file_path)
     elif choice == "4":
-        print("stats(data)")
+        data = process_file(file_path)
+        stats = calculate_stats(data)
+        display_stats(stats)
+        loaded_menu(file_path)
     elif choice == "5":
         print("filter_data(data)")
     elif choice == "6":
@@ -121,3 +125,29 @@ def save_file(file_path, data):
         save_data_yaml(data, save_path)
     else:
         print("Invalid choice. File not saved.")
+
+
+def display_stats(stats):
+    for field, field_stats in stats.items():
+        print(f"\nField: {field}")
+        if "type" in field_stats and field_stats["type"] == "string":
+            print("  Type: String")
+        elif "min" in field_stats and "average" in field_stats:
+            print(f"  Type: Numeric")
+            print(f"  Minimum: {field_stats['min']}")
+            print(f"  Maximum: {field_stats['max']}")
+            print(f"  Average: {field_stats['average']:.2f}")
+        elif "true_percentage" in field_stats:
+            print(f"  Type: Boolean")
+            print(f"  True: {field_stats['true_percentage']:.2f}%")
+            print(f"  False: {100 - field_stats['true_percentage']:.2f}%")
+        elif "min_length" in field_stats:
+            print(f"  Type: List")
+            print(f"  Minimum length: {field_stats['min_length']}")
+            print(f"  Maximum length: {field_stats['max_length']}")
+            print(f"  Average length: {field_stats['average_length']:.2f}")
+            print(f"  Total length: {field_stats['total_length']}")
+            print(f"  Minimum value: {field_stats['min_value']}")
+            print(f"  Maximum value: {field_stats['max_value']}")
+            print(f"  Average value: {field_stats['average_value']:.2f}")
+            print(f"  Total items: {field_stats['total_items']}")

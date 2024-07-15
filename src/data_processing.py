@@ -2,6 +2,8 @@
 import json
 import yaml
 import xml.etree.ElementTree as ET
+import statistics
+
 
 from src.data_io import read_file
 
@@ -100,4 +102,3 @@ def process_file(filepath):
         return process_yaml(filepath)
     else:
         raise ValueError("Invalid file format")
-

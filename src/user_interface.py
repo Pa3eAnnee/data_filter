@@ -3,6 +3,7 @@ import os
 from src.data_filtering import filter_data
 from src.data_io import read_file, save_data_csv, save_data_json, save_data_xml, save_data_yaml
 from src.data_processing import process_file
+from src.data_sorting import display_sorted_data, sort_data
 from src.data_statistics import calculate_stats
 from src.data_statistics import identify_field_type
 
@@ -25,32 +26,23 @@ def select_file():
 
 
 def main_menu():
-    print("Please select an option:")
-    print("1 ... Select a file")
-    print("2 ... Filter data WIP")
-    print("3 ... Sort data WIP")
-    print("4 ... Export data WIP")
-    print("0 ... Quit")
+    while True:
+        print("Please select an option:")
+        print("1 ... Select a file")
+        print("0 ... Quit")
 
-    choice = input("Enter your choice: ")
+        choice = input("Enter your choice: ")
 
-    if choice == "1":
-        file_path = select_file()
-        if file_path:
-            print("Loaded file:", file_path)
-            loaded_menu(file_path)
-    elif choice == "2":
-        print("Filtering data feature WIP")
-    elif choice == "3":
-        print("Sorting data feature WIP")
-    elif choice == "4":
-        print("Exporting data feature WIP")
-    elif choice == "0":
-        print("Quitting the application")
-        return
-    else:
-        print("Invalid choice. Please try again.")
-        main_menu()
+        if choice == "1":
+            file_path = select_file()
+            if file_path:
+                print("Loaded file:", file_path)
+                loaded_menu(file_path)
+        elif choice == "0":
+            print("Quitting the application")
+            break
+        else:
+            print("Invalid choice. Please try again.")
 
 def loaded_menu(file_path):
     print("\nOptions:")
@@ -60,9 +52,9 @@ def loaded_menu(file_path):
     print("4. Stats")
     print("5. Filter")
     print("6. Sort")
+    print("7. Change file")
     print("0. Quit")
     
-
     choice = input("\nEnter your choice: ")
 
     if choice == "1":
@@ -85,12 +77,25 @@ def loaded_menu(file_path):
         filter_menu(data)
         loaded_menu(file_path)
     elif choice == "6":
-        print("sort_data(data)")
+        data = process_file(file_path)
+        sorted_data = sort_data(data)
+        display_sorted_data(sorted_data)
+        loaded_menu(file_path)
+    elif choice == "7":
+        print("Changing file...")
+        new_file_path = select_file()
+        if new_file_path:
+            print("Loaded new file:", new_file_path)
+            loaded_menu(new_file_path)
+        else:
+            print("No file selected. Returning to current file menu.")
+            loaded_menu(file_path)
     elif choice == "0":
-        print("Quitting the application")
-        return
+        print("Returning to main menu")
+        main_menu()
     else:
         print("Invalid choice")
+        loaded_menu(file_path)
 
 
 def save_file(file_path, data):

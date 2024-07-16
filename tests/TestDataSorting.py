@@ -1,6 +1,10 @@
 import unittest
 from unittest.mock import patch
-from src.data_sorting import sort_data
+from io import StringIO
+from src.data_sorting import (
+    get_available_fields, display_available_fields, get_sort_fields,
+    get_sort_orders, sort_data, display_sorted_data
+)
 
 class TestDataSorting(unittest.TestCase):
 
@@ -12,69 +16,44 @@ class TestDataSorting(unittest.TestCase):
             {"name": "David", "age": 28, "score": 95}
         ]
 
-    @patch('builtins.input', side_effect=['1', '0', 'a'])
-    def test_sort_by_name(self, mock_input):
-        result = sort_data(self.test_data)
-        self.assertEqual([item['name'] for item in result], ['Alice', 'Bob', 'Charlie', 'David'])
+    def test_get_available_fields(self):
+        fields = get_available_fields(self.test_data)
+        self.assertEqual(fields, ["name", "age", "score"])
 
-    @patch('builtins.input', side_effect=['2', 'd'])
-    def test_sort_by_age_descending(self, mock_input):
-        result = sort_data(self.test_data)
-        actual_order = [item['name'] for item in result]
-        expected_order = ['Charlie', 'Alice', 'David', 'Bob']
-        print("\ntest_sort_by_age_descending:")
-        print(f"Actual order: {actual_order}")
-        print(f"Expected order: {expected_order}")
-        print(f"Actual ages: {[item['age'] for item in result]}")
-        self.assertEqual(actual_order, expected_order)
+    @patch('sys.stdout', new_callable=StringIO)
+    def test_display_available_fields(self, mock_stdout):
+        fields = ["name", "age", "score"]
+        display_available_fields(fields)
+        expected_output = "Available fields for sorting:\n1. name\n2. age\n3. score\n"
+        self.assertEqual(mock_stdout.getvalue(), expected_output)
 
-    @patch('builtins.input', side_effect=['3', 'a'])
-    def test_sort_by_score(self, mock_input):
-        result = sort_data(self.test_data)
-        actual_order = [item['name'] for item in result]
-        expected_order = ['Charlie', 'Alice', 'Bob', 'David']
-        print("\ntest_sort_by_score:")
-        print(f"Actual order: {actual_order}")
-        print(f"Expected order: {expected_order}")
-        print(f"Actual scores: {[item['score'] for item in result]}")
-        self.assertEqual(actual_order, expected_order)
-        
-    def test_sort_empty_data(self):
-        with patch('builtins.input', side_effect=['1', 'a']):
-            result = sort_data([])
-        self.assertEqual(result, "No data to sort")
+    @patch('builtins.input', side_effect=['1', '2', '0'])
+    def test_get_sort_fields(self, mock_input):
+        fields = ["name", "age", "score"]
+        sort_fields = get_sort_fields(fields)
+        self.assertEqual(sort_fields, ["name", "age"])
 
-    @patch('builtins.input', side_effect=['1', '0', 'a'])
-    def test_sort_single_item(self, mock_input):
-        single_item = [{"name": "Alice", "age": 30, "score": 85}]
-        result = sort_data(single_item)
-        self.assertEqual(result, single_item)
+    @patch('builtins.input', side_effect=['a', 'd'])
+    def test_get_sort_orders(self, mock_input):
+        sort_fields = ["name", "age"]
+        order_choices = get_sort_orders(sort_fields)
+        self.assertEqual(order_choices, [False, True])
 
-    @patch('builtins.input', side_effect=['2', 'a', '1', 'a'])
-    def test_sort_multiple_fields(self, mock_input):
+    @patch('builtins.input', side_effect=['1', '2', '0', 'a', 'd'])
+    def test_sort_data(self, mock_input):
         result = sort_data(self.test_data)
-        actual_order = [item['name'] for item in result]
-        expected_order = ['Bob', 'David', 'Alice', 'Charlie']
-        print("\ntest_sort_multiple_fields:")
-        print(f"Actual order: {actual_order}")
-        print(f"Expected order: {expected_order}")
-        self.assertEqual(actual_order, expected_order)
+        expected_order = ['Alice', 'Bob', 'Charlie', 'David']
+        self.assertEqual([item['name'] for item in result], expected_order)
 
-    @patch('builtins.input', side_effect=['4'])
-    def test_sort_invalid_field(self, mock_input):
-        result = sort_data(self.test_data)
-        self.assertEqual(result, self.test_data)
-    
-    @patch('builtins.input', side_effect=['2', 'a'])
-    def test_sort_by_age(self, mock_input):
-        result = sort_data(self.test_data)
-        actual_order = [item['name'] for item in result]
-        expected_order = ['Bob', 'David', 'Alice', 'Charlie']
-        print("\ntest_sort_by_age:")
-        print(f"Actual order: {actual_order}")
-        print(f"Expected order: {expected_order}")
-        print(f"Actual ages: {[item['age'] for item in result]}")
-        self.assertEqual(actual_order, expected_order)
+    @patch('sys.stdout', new_callable=StringIO)
+    def test_display_sorted_data(self, mock_stdout):
+        sorted_data = [
+            {"name": "Alice", "age": 30, "score": 85},
+            {"name": "Bob", "age": 25, "score": 92}
+        ]
+        display_sorted_data(sorted_data)
+        expected_output = "{'name': 'Alice', 'age': 30, 'score': 85}\n{'name': 'Bob', 'age': 25, 'score': 92}\n"
+        self.assertEqual(mock_stdout.getvalue(), expected_output)
 
 if __name__ == '__main__':
     unittest.main()

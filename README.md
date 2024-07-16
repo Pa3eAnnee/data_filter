@@ -29,7 +29,7 @@ Pour aller plus loin, vous pourrez permettre d’autres critères de filtrage :
 Pour aller plus loin, vous pouvez aussi permettre de comparer deux champs entre eux, par exemple :
 
 * le prénom est avant le nom dans l’ordre lexicographique  - Fait 
-* la note de math est plus haute que la note d’anglais
+* la note de math est plus haute que la note d’anglais  - Fait 
 
 Ou encore comparer par rapport aux statistiques globales :
 
@@ -40,7 +40,8 @@ Vous pourrez filtrer sur une combinaison de champs : par exemple, sur les items,
 
 ## Tri
 
-Votre programme doit également pouvoir trier les éléments, au minimum par les valeurs de leurs champs. Pour aller plus loin, vous pouvez ensuite proposer de trier via une combinaison de champs (valeur globale pour les items, par exemple), ou de trier sur plusieurs critères successifs, en cas d’égalité (nom, puis prénom pour les étudiants, par exemple).
+Votre programme doit également pouvoir trier les éléments, au minimum par les valeurs de leurs champs.   - Fait 
+Pour aller plus loin, vous pouvez ensuite proposer de trier via une combinaison de champs (valeur globale pour les items, par exemple), ou de trier sur plusieurs critères successifs, en cas d’égalité (nom, puis prénom pour les étudiants, par exemple).
 
 ## Interface
 

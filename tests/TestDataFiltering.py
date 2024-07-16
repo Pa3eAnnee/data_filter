@@ -45,7 +45,7 @@ class TestDataFiltering(unittest.TestCase):
 
     def test_filter_list_length(self):
         result = filter_data(self.test_data, [("grades", "length_greater_than", 2)])
-        self.assertEqual(len(result), 4)  # All items have 3 grades
+        self.assertEqual(len(result), 4)
 
     def test_filter_list_contains(self):
         result = filter_data(self.test_data, [("grades", "contains", 100)])
@@ -179,10 +179,10 @@ class TestDataFiltering(unittest.TestCase):
         
         self.assertTrue(os.path.exists(filename))
         with open(filename, 'r', newline='') as f:
-            reader = csv.DictReader(f, delimiter=';')  # Specify the delimiter
+            reader = csv.DictReader(f, delimiter=';')
             saved_data = list(reader)
         self.assertEqual(len(filtered_data), len(saved_data))
-        self.assertEqual(set(filtered_data[0].keys()), set(saved_data[0].keys()))  # Use set for unordered comparison
+        self.assertEqual(set(filtered_data[0].keys()), set(saved_data[0].keys()))
         os.remove(filename)
 
     def test_save_filtered_results_xml(self):
@@ -218,87 +218,114 @@ class TestDataFiltering(unittest.TestCase):
         result = save_filtered_results(filtered_data, test_format="5", test_filename="invalid.txt")
         self.assertIsNone(result)
 
-def test_list_all_elements(self):
-    result = filter_data(self.test_data, [("grades", "all_elements", ("greater_than", 60))])
-    self.assertEqual(len(result), 3)
-    self.assertNotIn("David", [item["name"] for item in result])
+    def test_list_all_elements(self):
+        result = filter_data(self.test_data, [("grades", "all_elements", ("greater_than", 60))])
+        self.assertEqual(len(result), 3)
+        self.assertNotIn("David", [item["name"] for item in result])
 
-def test_list_all_elements_edge_case(self):
-    result = filter_data(self.test_data, [("grades", "all_elements", ("equal_to", 100))])
-    self.assertEqual(result, "No results...")
+    def test_list_all_elements_edge_case(self):
+        result = filter_data(self.test_data, [("grades", "all_elements", ("equal_to", 100))])
+        self.assertEqual(result, "No results...")
 
-def test_list_minimum(self):
-    result = filter_data(self.test_data, [("grades", "minimum", ("greater_than", 70))])
-    self.assertEqual(len(result), 2)
-    self.assertIn("Alice", [item["name"] for item in result])
-    self.assertIn("Charlie", [item["name"] for item in result])
+    def test_list_minimum(self):
+        result = filter_data(self.test_data, [("grades", "minimum", ("greater_than", 70))])
+        self.assertEqual(len(result), 2)
+        self.assertIn("Alice", [item["name"] for item in result])
+        self.assertIn("Charlie", [item["name"] for item in result])
 
-def test_list_minimum_edge_case(self):
-    result = filter_data(self.test_data, [("grades", "minimum", ("equal_to", 60))])
-    self.assertEqual(len(result), 1)
-    self.assertEqual(result[0]["name"], "David")
+    def test_list_minimum_edge_case(self):
+        result = filter_data(self.test_data, [("grades", "minimum", ("equal_to", 60))])
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["name"], "David")
 
-def test_list_maximum(self):
-    result = filter_data(self.test_data, [("grades", "maximum", ("greater_than", 90))])
-    self.assertEqual(len(result), 2)
-    self.assertIn("Alice", [item["name"] for item in result])
-    self.assertIn("Charlie", [item["name"] for item in result])
+    def test_list_maximum(self):
+        result = filter_data(self.test_data, [("grades", "maximum", ("greater_than", 90))])
+        self.assertEqual(len(result), 2)
+        self.assertIn("Alice", [item["name"] for item in result])
+        self.assertIn("Charlie", [item["name"] for item in result])
 
-def test_list_maximum_edge_case(self):
-    result = filter_data(self.test_data, [("grades", "maximum", ("equal_to", 100))])
-    self.assertEqual(len(result), 1)
-    self.assertEqual(result[0]["name"], "Charlie")
+    def test_list_maximum_edge_case(self):
+        result = filter_data(self.test_data, [("grades", "maximum", ("equal_to", 100))])
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["name"], "Charlie")
 
-def test_list_average(self):
-    result = filter_data(self.test_data, [("grades", "average", ("greater_than", 85))])
-    self.assertEqual(len(result), 2)
-    self.assertIn("Alice", [item["name"] for item in result])
-    self.assertIn("Charlie", [item["name"] for item in result])
+    def test_list_average(self):
+        result = filter_data(self.test_data, [("grades", "average", ("greater_than", 85))])
+        self.assertEqual(len(result), 2)
+        self.assertIn("Alice", [item["name"] for item in result])
+        self.assertIn("Charlie", [item["name"] for item in result])
 
-def test_list_average_edge_case(self):
-    result = filter_data(self.test_data, [("grades", "average", ("equal_to", 90))])
-    self.assertEqual(len(result), 1)
-    self.assertEqual(result[0]["name"], "Alice")
+    def test_list_average_edge_case(self):
+        result = filter_data(self.test_data, [("grades", "average", ("equal_to", 90))])
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["name"], "Alice")
 
-def test_list_empty(self):
-    test_data_with_empty = self.test_data + [{"name": "Eve", "age": 22, "is_student": True, "grades": []}]
-    result = filter_data(test_data_with_empty, [("grades", "all_elements", ("greater_than", 0))])
-    self.assertEqual(len(result), 4)
-    self.assertNotIn("Eve", [item["name"] for item in result])
+    def test_list_empty(self):
+        test_data_with_empty = self.test_data + [{"name": "Eve", "age": 22, "is_student": True, "grades": []}]
+        result = filter_data(test_data_with_empty, [("grades", "all_elements", ("greater_than", 0))])
+        self.assertEqual(len(result), 4)
+        self.assertNotIn("Eve", [item["name"] for item in result])
 
-def test_list_non_numeric(self):
-    test_data_with_non_numeric = self.test_data + [{"name": "Frank", "age": 28, "is_student": True, "grades": ["A", "B", "C"]}]
-    result = filter_data(test_data_with_non_numeric, [("grades", "average", ("greater_than", 80))])
-    self.assertEqual(len(result), 2)
-    self.assertNotIn("Frank", [item["name"] for item in result])
+    def test_list_non_numeric(self):
+        test_data_with_non_numeric = self.test_data + [{"name": "Frank", "age": 28, "is_student": True, "grades": ["A", "B", "C"]}]
+        result = filter_data(test_data_with_non_numeric, [("grades", "average", ("greater_than", 80))])
+        self.assertEqual(len(result), 2)
+        self.assertNotIn("Frank", [item["name"] for item in result])
 
-def test_multiple_list_filters(self):
-    result = filter_data(self.test_data, [
-        ("grades", "minimum", ("greater_than", 70)),
-        ("grades", "maximum", ("less_than", 100))
-    ])
-    self.assertEqual(len(result), 1)
-    self.assertEqual(result[0]["name"], "Alice")
+    def test_multiple_list_filters(self):
+        result = filter_data(self.test_data, [
+            ("grades", "minimum", ("greater_than", 70)),
+            ("grades", "maximum", ("less_than", 100))
+        ])
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["name"], "Alice")
 
-def test_compare_with_other_string_field_equal(self):
-    test_data = [
-        {"firstname": "John", "lastname": "Doe"},
-        {"firstname": "Jane", "lastname": "Doe"},
-        {"firstname": "Alice", "lastname": "Smith"},
-        {"firstname": "Bob", "lastname": "Johnson"}
-    ]
-    result = filter_data(test_data, [("firstname", "compare_with_other_string_field", "lastname")])
-    self.assertEqual(len(result), 0)
+    def test_compare_with_other_string_field_contains(self):
+        test_data = [
+            {"firstname": "John", "lastname": "Doe"},
+            {"firstname": "Jane", "lastname": "Doe"},
+            {"firstname": "Alice", "lastname": "Smith"},
+            {"firstname": "Bob", "lastname": "Johnson"}
+        ]
+        result = filter_data(test_data, [("firstname", "compare_with_other_string_field", ("lastname", "contains"))])
+        self.assertEqual(result, "No results...")
+        
+    
+    def test_compare_with_other_string_field_equal(self):
+        test_data = [
+            {"firstname": "John", "lastname": "Doe"},
+            {"firstname": "Jane", "lastname": "Doe"},
+            {"firstname": "Alice", "lastname": "Smith"},
+            {"firstname": "Bob", "lastname": "Johnson"}
+        ]
+        result = filter_data(test_data, [("firstname", "compare_with_other_string_field", ("lastname", "equal_to"))])
+        self.assertEqual(result, "No results...")
 
-def test_compare_with_other_string_field_contains(self):
-    test_data = [
-        {"firstname": "John", "lastname": "Doe"},
-        {"firstname": "Jane", "lastname": "Doe"},
-        {"firstname": "Alice", "lastname": "Smith"},
-        {"firstname": "Bob", "lastname": "Johnson"}
-    ]
-    result = filter_data(test_data, [("firstname", "compare_with_other_string_field", "lastname")])
-    self.assertEqual(len(result), 0)
+    def test_compare_numeric_fields(self):
+        test_data = [
+            {"name": "Alice", "age": 30, "salary": 50000},
+            {"name": "Bob", "age": 35, "salary": 60000},
+            {"name": "Charlie", "age": 40, "salary": 70000},
+            {"name": "David", "age": 45, "salary": 80000}
+        ]
+        result = filter_data(test_data, [("age", "compare_with_other_numeric_field", ("salary", "less_than"))])
+        self.assertEqual(len(result), 4)
+
+        result = filter_data(test_data, [("salary", "compare_with_other_numeric_field", ("age", "greater_than"))])
+        self.assertEqual(len(result), 4)
+
+        result = filter_data(test_data, [("age", "compare_with_other_numeric_field", ("salary", "equal_to"))])
+        self.assertEqual(result, "No results...")
+
+    def test_compare_string_fields_not_equal(self):
+        test_data = [
+            {"firstname": "Jorj", "lastname": "De Gaulle"},
+            {"firstname": "Michel", "lastname": "Torvalds"}
+        ]
+        result = filter_data(test_data, [("firstname", "compare_with_other_string_field", ("lastname", "not_equal_to"))])
+        self.assertEqual(len(result), 2)
+        self.assertIn(result[0]['firstname'], ['Jorj', 'Michel'])
+        self.assertIn(result[1]['firstname'], ['Jorj', 'Michel'])
 
 if __name__ == '__main__':
     unittest.main()

@@ -3,6 +3,7 @@ import os
 from src.data_filtering import filter_data
 from src.data_io import read_file, save_data_csv, save_data_json, save_data_xml, save_data_yaml
 from src.data_processing import process_file
+from src.data_sorting import display_sorted_data, sort_data
 from src.data_statistics import calculate_stats
 from src.data_statistics import identify_field_type
 
@@ -25,32 +26,23 @@ def select_file():
 
 
 def main_menu():
-    print("Please select an option:")
-    print("1 ... Select a file")
-    print("2 ... Filter data WIP")
-    print("3 ... Sort data WIP")
-    print("4 ... Export data WIP")
-    print("0 ... Quit")
+    while True:
+        print("Please select an option:")
+        print("1 ... Select a file")
+        print("0 ... Quit")
 
-    choice = input("Enter your choice: ")
+        choice = input("Enter your choice: ")
 
-    if choice == "1":
-        file_path = select_file()
-        if file_path:
-            print("Loaded file:", file_path)
-            loaded_menu(file_path)
-    elif choice == "2":
-        print("Filtering data feature WIP")
-    elif choice == "3":
-        print("Sorting data feature WIP")
-    elif choice == "4":
-        print("Exporting data feature WIP")
-    elif choice == "0":
-        print("Quitting the application")
-        return
-    else:
-        print("Invalid choice. Please try again.")
-        main_menu()
+        if choice == "1":
+            file_path = select_file()
+            if file_path:
+                print("Loaded file:", file_path)
+                loaded_menu(file_path)
+        elif choice == "0":
+            print("Quitting the application")
+            break
+        else:
+            print("Invalid choice. Please try again.")
 
 def loaded_menu(file_path):
     print("\nOptions:")
@@ -60,9 +52,9 @@ def loaded_menu(file_path):
     print("4. Stats")
     print("5. Filter")
     print("6. Sort")
+    print("7. Change file")
     print("0. Quit")
     
-
     choice = input("\nEnter your choice: ")
 
     if choice == "1":
@@ -85,12 +77,25 @@ def loaded_menu(file_path):
         filter_menu(data)
         loaded_menu(file_path)
     elif choice == "6":
-        print("sort_data(data)")
+        data = process_file(file_path)
+        sorted_data = sort_data(data)
+        display_sorted_data(sorted_data)
+        loaded_menu(file_path)
+    elif choice == "7":
+        print("Changing file...")
+        new_file_path = select_file()
+        if new_file_path:
+            print("Loaded new file:", new_file_path)
+            loaded_menu(new_file_path)
+        else:
+            print("No file selected. Returning to current file menu.")
+            loaded_menu(file_path)
     elif choice == "0":
-        print("Quitting the application")
-        return
+        print("Returning to main menu")
+        main_menu()
     else:
         print("Invalid choice")
+        loaded_menu(file_path)
 
 
 def save_file(file_path, data):
@@ -213,7 +218,8 @@ def numeric_filter_menu():
         "Less than - Strictly less than the given value",
         "Greater than or equal to - Greater than or equal to the given value",
         "Less than or equal to - Less than or equal to the given value",
-        "Range - Between two values"
+        "Range - Between two values",
+        "Compare with other numeric field - Compare with another numeric field"
     ]
     operation = get_operation_choice(operations)
     return operation.split('-')[0].strip().lower().replace(' ', '_')
@@ -300,41 +306,85 @@ def filter_menu(data):
     field, field_type = get_field_choice(data)
     print(f"\nSelected field: {field} (Type: {field_type})")
 
-    if field_type == "string":
-        operation = string_filter_menu()
-        if operation == "compare_with_other_string_field":
-            compare_field = select_string_field_to_compare(data, field)
-            if compare_field:
-                compare_operation = string_comparison_menu()
-                value = (compare_field, compare_operation)
-            else:
-                print("No other string fields available for comparison.")
-                return None
-        else:
-            value = input("Enter the value to compare with: ")
-    elif field_type == "boolean":
-        operation = boolean_filter_menu()
-        value = operation
-    elif field_type == "numeric":
-        operation = numeric_filter_menu()
-        value = get_filter_value(field_type, operation)
-    elif field_type == "list":
-        operation = list_filter_menu()
-        value = get_filter_value(field_type, operation)
-    else:
-        print(f"Unsupported field type: {field_type}")
+    operation, value = get_operation_and_value(data, field, field_type)
+    if operation is None:
         return None
 
-    filtered_result = filter_data(data, [(field, operation, value)])
+    filtered_result = apply_filter(data, field, operation, value)
+    display_filtered_result(filtered_result)
 
+    return filtered_result
+
+def get_operation_and_value(data, field, field_type):
+    if field_type == "string":
+        return get_string_operation_and_value(data, field)
+    elif field_type == "numeric":
+        return get_numeric_operation_and_value(data, field)
+    elif field_type == "boolean":
+        return get_boolean_operation_and_value()
+    elif field_type == "list":
+        return get_list_operation_and_value()
+    else:
+        print(f"Unsupported field type: {field_type}")
+        return None, None
+
+def get_string_operation_and_value(data, field):
+    operation = string_filter_menu()
+    if operation == "compare_with_other_string_field":
+        return handle_field_comparison(data, field, "string")
+    else:
+        value = input("Enter the value to compare with: ")
+        return operation, value
+
+def get_numeric_operation_and_value(data, field):
+    operation = numeric_filter_menu()
+    if operation == "compare_with_other_numeric_field":
+        return handle_field_comparison(data, field, "numeric")
+    else:
+        value = get_filter_value("numeric", operation)
+        return operation, value
+
+def get_boolean_operation_and_value():
+    operation = boolean_filter_menu()
+    return operation, operation
+
+def get_list_operation_and_value():
+    operation = list_filter_menu()
+    value = get_filter_value("list", operation)
+    return operation, value
+
+def handle_field_comparison(data, field, field_type):
+    compare_field = select_field_to_compare(data, field, field_type)
+    if compare_field:
+        compare_operation = get_comparison_menu(field_type)
+        value = (compare_field, compare_operation)
+        return f"compare_with_other_{field_type}_field", value
+    else:
+        print(f"No other {field_type} fields available for comparison.")
+        return None, None
+
+def select_field_to_compare(data, field, field_type):
+    if field_type == "string":
+        return select_string_field_to_compare(data, field)
+    elif field_type == "numeric":
+        return select_numeric_field_to_compare(data, field)
+
+def get_comparison_menu(field_type):
+    if field_type == "string":
+        return string_comparison_menu()
+    elif field_type == "numeric":
+        return numeric_comparison_menu()
+
+def apply_filter(data, field, operation, value):
+    return filter_data(data, [(field, operation, value)])
+
+def display_filtered_result(filtered_result):
     if isinstance(filtered_result, str):
         print(filtered_result)
     else:
         print("Filtered data:")
         for item in filtered_result:
             print(item)
-
-    return filtered_result
 
 def save_filtered_results(filtered_data, test_format=None, test_filename=None):
     if filtered_data == "No results...":
@@ -423,6 +473,30 @@ def string_comparison_menu():
         "Contains - First field contains the second",
         "Starts with - First field starts with the second",
         "Ends with - First field ends with the second"
+    ]
+    operation = get_operation_choice(operations)
+    return operation.split('-')[0].strip().lower().replace(' ', '_')
+
+def select_numeric_field_to_compare(data, current_field):
+    numeric_fields = [field for field in data[0].keys() if isinstance(data[0][field], (int, float)) and field != current_field]
+    if not numeric_fields:
+        print("No other numeric fields available for comparison.")
+        return None
+    print("\nSelect a numeric field to compare with:")
+    for i, field in enumerate(numeric_fields, 1):
+        print(f"{i}. {field}")
+    choice = int(input("Enter your choice: ")) - 1
+    return numeric_fields[choice]
+
+def numeric_comparison_menu():
+    print("\nHow do you want to compare the two numeric fields?")
+    operations = [
+        "Equal to - Exact match",
+        "Not equal to - Doesn't match exactly",
+        "Greater than - First field greater than the second",
+        "Less than - First field less than the second",
+        "Greater than or equal to - First field greater than or equal to the second",
+        "Less than or equal to - First field less than or equal to the second"
     ]
     operation = get_operation_choice(operations)
     return operation.split('-')[0].strip().lower().replace(' ', '_')

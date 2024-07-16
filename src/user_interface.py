@@ -301,50 +301,85 @@ def filter_menu(data):
     field, field_type = get_field_choice(data)
     print(f"\nSelected field: {field} (Type: {field_type})")
 
-    if field_type == "string":
-        operation = string_filter_menu()
-        if operation == "compare_with_other_string_field":
-            compare_field = select_string_field_to_compare(data, field)
-            if compare_field:
-                compare_operation = string_comparison_menu()
-                value = (compare_field, compare_operation)
-            else:
-                print("No other string fields available for comparison.")
-                return None
-        else:
-            value = input("Enter the value to compare with: ")
-    elif field_type == "numeric":
-        operation = numeric_filter_menu()
-        if operation == "compare_with_other_numeric_field":
-            compare_field = select_numeric_field_to_compare(data, field)
-            if compare_field:
-                compare_operation = numeric_comparison_menu()
-                value = (compare_field, compare_operation)
-            else:
-                print("No other numeric fields available for comparison.")
-                return None
-        else:
-            value = get_filter_value(field_type, operation)
-    elif field_type == "boolean":
-        operation = boolean_filter_menu()
-        value = operation
-    elif field_type == "list":
-        operation = list_filter_menu()
-        value = get_filter_value(field_type, operation)
-    else:
-        print(f"Unsupported field type: {field_type}")
+    operation, value = get_operation_and_value(data, field, field_type)
+    if operation is None:
         return None
 
-    filtered_result = filter_data(data, [(field, operation, value)])
+    filtered_result = apply_filter(data, field, operation, value)
+    display_filtered_result(filtered_result)
 
+    return filtered_result
+
+def get_operation_and_value(data, field, field_type):
+    if field_type == "string":
+        return get_string_operation_and_value(data, field)
+    elif field_type == "numeric":
+        return get_numeric_operation_and_value(data, field)
+    elif field_type == "boolean":
+        return get_boolean_operation_and_value()
+    elif field_type == "list":
+        return get_list_operation_and_value()
+    else:
+        print(f"Unsupported field type: {field_type}")
+        return None, None
+
+def get_string_operation_and_value(data, field):
+    operation = string_filter_menu()
+    if operation == "compare_with_other_string_field":
+        return handle_field_comparison(data, field, "string")
+    else:
+        value = input("Enter the value to compare with: ")
+        return operation, value
+
+def get_numeric_operation_and_value(data, field):
+    operation = numeric_filter_menu()
+    if operation == "compare_with_other_numeric_field":
+        return handle_field_comparison(data, field, "numeric")
+    else:
+        value = get_filter_value("numeric", operation)
+        return operation, value
+
+def get_boolean_operation_and_value():
+    operation = boolean_filter_menu()
+    return operation, operation
+
+def get_list_operation_and_value():
+    operation = list_filter_menu()
+    value = get_filter_value("list", operation)
+    return operation, value
+
+def handle_field_comparison(data, field, field_type):
+    compare_field = select_field_to_compare(data, field, field_type)
+    if compare_field:
+        compare_operation = get_comparison_menu(field_type)
+        value = (compare_field, compare_operation)
+        return f"compare_with_other_{field_type}_field", value
+    else:
+        print(f"No other {field_type} fields available for comparison.")
+        return None, None
+
+def select_field_to_compare(data, field, field_type):
+    if field_type == "string":
+        return select_string_field_to_compare(data, field)
+    elif field_type == "numeric":
+        return select_numeric_field_to_compare(data, field)
+
+def get_comparison_menu(field_type):
+    if field_type == "string":
+        return string_comparison_menu()
+    elif field_type == "numeric":
+        return numeric_comparison_menu()
+
+def apply_filter(data, field, operation, value):
+    return filter_data(data, [(field, operation, value)])
+
+def display_filtered_result(filtered_result):
     if isinstance(filtered_result, str):
         print(filtered_result)
     else:
         print("Filtered data:")
         for item in filtered_result:
             print(item)
-
-    return filtered_result
 
 def save_filtered_results(filtered_data, test_format=None, test_filename=None):
     if filtered_data == "No results...":

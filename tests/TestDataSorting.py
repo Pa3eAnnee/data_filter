@@ -1,7 +1,10 @@
 import unittest
 from unittest.mock import patch
 from io import StringIO
-from src.data_sorting import sort_data
+from src.data_sorting import (
+    get_available_fields, display_available_fields, get_sort_fields,
+    get_sort_orders, sort_data, display_sorted_data
+)
 
 class TestDataSorting(unittest.TestCase):
 
@@ -13,54 +16,44 @@ class TestDataSorting(unittest.TestCase):
             {"name": "David", "age": 28, "score": 95}
         ]
 
-    def test_sort_by_name(self):
-        with patch('builtins.input', side_effect=['1', 'a']):
-            result = sort_data(self.test_data)
-        expected = [
-            {"name": "Alice", "age": 30, "score": 85},
-            {"name": "Bob", "age": 25, "score": 92},
-            {"name": "Charlie", "age": 35, "score": 78},
-            {"name": "David", "age": 28, "score": 95}
-        ]
-        self.assertEqual(result, expected)
+    def test_get_available_fields(self):
+        fields = get_available_fields(self.test_data)
+        self.assertEqual(fields, ["name", "age", "score"])
 
-    def test_sort_by_age_descending(self):
-        with patch('builtins.input', side_effect=['2', 'd']):
-            result = sort_data(self.test_data)
-        expected = [
-            {"name": "Charlie", "age": 35, "score": 78},
+    @patch('sys.stdout', new_callable=StringIO)
+    def test_display_available_fields(self, mock_stdout):
+        fields = ["name", "age", "score"]
+        display_available_fields(fields)
+        expected_output = "Available fields for sorting:\n1. name\n2. age\n3. score\n"
+        self.assertEqual(mock_stdout.getvalue(), expected_output)
+
+    @patch('builtins.input', side_effect=['1', '2', '0'])
+    def test_get_sort_fields(self, mock_input):
+        fields = ["name", "age", "score"]
+        sort_fields = get_sort_fields(fields)
+        self.assertEqual(sort_fields, ["name", "age"])
+
+    @patch('builtins.input', side_effect=['a', 'd'])
+    def test_get_sort_orders(self, mock_input):
+        sort_fields = ["name", "age"]
+        order_choices = get_sort_orders(sort_fields)
+        self.assertEqual(order_choices, [False, True])
+
+    @patch('builtins.input', side_effect=['1', '2', '0', 'a', 'd'])
+    def test_sort_data(self, mock_input):
+        result = sort_data(self.test_data)
+        expected_order = ['Alice', 'Bob', 'Charlie', 'David']
+        self.assertEqual([item['name'] for item in result], expected_order)
+
+    @patch('sys.stdout', new_callable=StringIO)
+    def test_display_sorted_data(self, mock_stdout):
+        sorted_data = [
             {"name": "Alice", "age": 30, "score": 85},
-            {"name": "David", "age": 28, "score": 95},
             {"name": "Bob", "age": 25, "score": 92}
         ]
-        self.assertEqual(result, expected)
-
-    def test_sort_by_score(self):
-        with patch('builtins.input', side_effect=['3', 'a']):
-            result = sort_data(self.test_data)
-        expected = [
-            {"name": "Charlie", "age": 35, "score": 78},
-            {"name": "Alice", "age": 30, "score": 85},
-            {"name": "Bob", "age": 25, "score": 92},
-            {"name": "David", "age": 28, "score": 95}
-        ]
-        self.assertEqual(result, expected)
-
-    def test_sort_empty_data(self):
-        with patch('builtins.input', side_effect=['1', 'a']):
-            result = sort_data([])
-        self.assertEqual(result, "No data to sort")
-
-    def test_sort_single_item(self):
-        single_item = [{"name": "Alice", "age": 30, "score": 85}]
-        with patch('builtins.input', side_effect=['1', 'a']):
-            result = sort_data(single_item)
-        self.assertEqual(result, single_item)
-
-    def test_sort_invalid_field(self):
-        with patch('builtins.input', side_effect=['4', 'a']):
-            result = sort_data(self.test_data)
-        self.assertEqual(result, 'Invalid field choice')
+        display_sorted_data(sorted_data)
+        expected_output = "{'name': 'Alice', 'age': 30, 'score': 85}\n{'name': 'Bob', 'age': 25, 'score': 92}\n"
+        self.assertEqual(mock_stdout.getvalue(), expected_output)
 
 if __name__ == '__main__':
     unittest.main()

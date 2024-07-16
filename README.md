@@ -24,11 +24,11 @@ Votre programme doit permettre de filtrer les données, pour ne garder qu’un s
 Pour aller plus loin, vous pourrez permettre d’autres critères de filtrage :
 
 * pour les chaînes de caractères : contient, commence/finit par  - Fait
-* pour les listes, des règles plus complexes : tous les éléments, le min/max/moyenne
+* pour les listes, des règles plus complexes : tous les éléments, le min/max/moyenne  - Fait 
 
 Pour aller plus loin, vous pouvez aussi permettre de comparer deux champs entre eux, par exemple :
 
-* le prénom est avant le nom dans l’ordre lexicographique
+* le prénom est avant le nom dans l’ordre lexicographique  - Fait 
 * la note de math est plus haute que la note d’anglais
 
 Ou encore comparer par rapport aux statistiques globales :

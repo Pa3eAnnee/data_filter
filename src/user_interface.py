@@ -187,7 +187,8 @@ def string_filter_menu():
         "Contains - Includes the given text (case-insensitive)",
         "Starts with - Begins with the given text (case-insensitive)",
         "Ends with - Ends with the given text (case-insensitive)",
-        "Regex - Use a regular expression"
+        "Regex - Use a regular expression",
+        "Compare with other string field - Compare with another string field"
     ]
     operation = get_operation_choice(operations)
     return operation.split('-')[0].strip().lower().replace(' ', '_')
@@ -226,7 +227,11 @@ def list_filter_menu():
         "Length less than - List length strictly less than the given value",
         "Length greater than or equal to - List length greater than or equal to the given value",
         "Length less than or equal to - List length less than or equal to the given value",
-        "Contains - List contains a specific value"
+        "Contains - List contains a specific value",
+        "All elements - All elements satisfy a condition",
+        "Minimum - Minimum value in the list satisfies a condition",
+        "Maximum - Maximum value in the list satisfies a condition",
+        "Average - Average value of the list satisfies a condition"
     ]
     operation = get_operation_choice(operations)
     return operation.split('-')[0].strip().lower().replace(' ', '_')
@@ -242,7 +247,16 @@ def get_filter_value(field_type, operation):
         else:
             return float(input("Enter the numeric value to compare with: "))
     elif field_type == "list":
-        if operation == "contains":
+        if operation in ["all_elements", "minimum", "maximum", "average"]:
+            print("\nChoose the condition for list elements:")
+            print("1. Greater than")
+            print("2. Less than")
+            print("3. Equal to")
+            condition_choice = input("Enter your choice (1-3): ")
+            condition = ["greater_than", "less_than", "equal_to"][int(condition_choice) - 1]
+            value = float(input("Enter the value to compare with: "))
+            return (condition, value)
+        elif operation == "contains":
             return input("Enter the value to search for in the list: ")
         else:
             return int(input("Enter the list length to compare with: "))
@@ -288,29 +302,40 @@ def filter_menu(data):
 
     if field_type == "string":
         operation = string_filter_menu()
+        if operation == "compare_with_other_string_field":
+            compare_field = select_string_field_to_compare(data, field)
+            if compare_field:
+                compare_operation = string_comparison_menu()
+                value = (compare_field, compare_operation)
+            else:
+                print("No other string fields available for comparison.")
+                return None
+        else:
+            value = input("Enter the value to compare with: ")
     elif field_type == "boolean":
         operation = boolean_filter_menu()
+        value = operation
     elif field_type == "numeric":
         operation = numeric_filter_menu()
+        value = get_filter_value(field_type, operation)
     elif field_type == "list":
         operation = list_filter_menu()
+        value = get_filter_value(field_type, operation)
     else:
         print(f"Unsupported field type: {field_type}")
         return None
 
-    value = get_filter_value(field_type, operation)
     filtered_result = filter_data(data, [(field, operation, value)])
-    if filtered_result == "No results...":
+
+    if isinstance(filtered_result, str):
         print(filtered_result)
     else:
         print("Filtered data:")
-        print(filtered_result)
-        if input("Do you want to save the filtered results? (y/n): ").lower() == 'y':
-            save_filtered_results(filtered_result)
+        for item in filtered_result:
+            print(item)
 
     return filtered_result
 
-
 def save_filtered_results(filtered_data, test_format=None, test_filename=None):
     if filtered_data == "No results...":
         print("No data to save.")
@@ -377,3 +402,27 @@ def save_filtered_results(filtered_data, test_format=None, test_filename=None):
         save_data_yaml(filtered_data, filename)
     else:
         print("Invalid choice. File not saved.")
+
+def select_string_field_to_compare(data, current_field):
+    string_fields = [field for field in data[0].keys() if isinstance(data[0][field], str) and field != current_field]
+    if not string_fields:
+        print("No other string fields available for comparison.")
+        return None
+    print("\nSelect a string field to compare with:")
+    for i, field in enumerate(string_fields, 1):
+        print(f"{i}. {field}")
+    choice = int(input("Enter your choice: ")) - 1
+    return string_fields[choice]
+
+
+def string_comparison_menu():
+    print("\nHow do you want to compare the two string fields?")
+    operations = [
+        "Equal to - Exact match",
+        "Not equal to - Doesn't match exactly",
+        "Contains - First field contains the second",
+        "Starts with - First field starts with the second",
+        "Ends with - First field ends with the second"
+    ]
+    operation = get_operation_choice(operations)
+    return operation.split('-')[0].strip().lower().replace(' ', '_')

@@ -213,7 +213,8 @@ def numeric_filter_menu():
         "Less than - Strictly less than the given value",
         "Greater than or equal to - Greater than or equal to the given value",
         "Less than or equal to - Less than or equal to the given value",
-        "Range - Between two values"
+        "Range - Between two values",
+        "Compare with other numeric field - Compare with another numeric field"
     ]
     operation = get_operation_choice(operations)
     return operation.split('-')[0].strip().lower().replace(' ', '_')
@@ -312,12 +313,21 @@ def filter_menu(data):
                 return None
         else:
             value = input("Enter the value to compare with: ")
+    elif field_type == "numeric":
+        operation = numeric_filter_menu()
+        if operation == "compare_with_other_numeric_field":
+            compare_field = select_numeric_field_to_compare(data, field)
+            if compare_field:
+                compare_operation = numeric_comparison_menu()
+                value = (compare_field, compare_operation)
+            else:
+                print("No other numeric fields available for comparison.")
+                return None
+        else:
+            value = get_filter_value(field_type, operation)
     elif field_type == "boolean":
         operation = boolean_filter_menu()
         value = operation
-    elif field_type == "numeric":
-        operation = numeric_filter_menu()
-        value = get_filter_value(field_type, operation)
     elif field_type == "list":
         operation = list_filter_menu()
         value = get_filter_value(field_type, operation)
@@ -423,6 +433,30 @@ def string_comparison_menu():
         "Contains - First field contains the second",
         "Starts with - First field starts with the second",
         "Ends with - First field ends with the second"
+    ]
+    operation = get_operation_choice(operations)
+    return operation.split('-')[0].strip().lower().replace(' ', '_')
+
+def select_numeric_field_to_compare(data, current_field):
+    numeric_fields = [field for field in data[0].keys() if isinstance(data[0][field], (int, float)) and field != current_field]
+    if not numeric_fields:
+        print("No other numeric fields available for comparison.")
+        return None
+    print("\nSelect a numeric field to compare with:")
+    for i, field in enumerate(numeric_fields, 1):
+        print(f"{i}. {field}")
+    choice = int(input("Enter your choice: ")) - 1
+    return numeric_fields[choice]
+
+def numeric_comparison_menu():
+    print("\nHow do you want to compare the two numeric fields?")
+    operations = [
+        "Equal to - Exact match",
+        "Not equal to - Doesn't match exactly",
+        "Greater than - First field greater than the second",
+        "Less than - First field less than the second",
+        "Greater than or equal to - First field greater than or equal to the second",
+        "Less than or equal to - First field less than or equal to the second"
     ]
     operation = get_operation_choice(operations)
     return operation.split('-')[0].strip().lower().replace(' ', '_')

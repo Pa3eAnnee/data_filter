@@ -4,12 +4,28 @@ import json
 def filter_data(data, filters):
     filtered_data = data
     for field, operation, value in filters:
-        if operation == "compare_with_other_string_field":
+        if operation in ["compare_with_other_string_field", "compare_with_other_numeric_field"]:
             compare_field, compare_operation = value
-            filtered_data = [item for item in filtered_data if field in item and compare_field in item and compare_string(item[field], compare_operation, item[compare_field])]
+            filtered_data = [
+                item for item in filtered_data 
+                if field in item and compare_field in item and 
+                compare_fields(item[field], compare_operation, item[compare_field])
+            ]
         else:
-            filtered_data = [item for item in filtered_data if field in item and compare_values(item[field], operation, value)]
+            filtered_data = [
+                item for item in filtered_data 
+                if field in item and compare_values(item[field], operation, value)
+            ]
     return filtered_data if filtered_data else "No results..."
+
+def compare_fields(field1_value, operation, field2_value):
+    if isinstance(field1_value, (int, float)) and isinstance(field2_value, (int, float)):
+        return compare_numeric(field1_value, operation, field2_value)
+    elif isinstance(field1_value, str) and isinstance(field2_value, str):
+        return compare_string(field1_value, operation, field2_value)
+    else:
+        return False
+
 
 def regex_filter(item_value, pattern):
     try:
@@ -35,57 +51,67 @@ def compare_values(item_value, operation, compare_value):
         return compare_list(item_value, operation, compare_value)
     else:
         raise ValueError(f"Unsupported data type: {type(item_value)}")
+    
 
-def compare_string(item_value, operation, compare_value, item=None, compare_field=None):
-    item_value = str(item_value)
-    compare_value = str(compare_value)
+def compare_string(item_value, operation, compare_value):
+    item_value = str(item_value).lower()
+    compare_value = str(compare_value).lower()
     
     if operation == "equal_to":
-        return item_value.lower() == compare_value.lower()
+        return item_value == compare_value
     elif operation == "not_equal_to":
-        return item_value.lower() != compare_value.lower()
+        return item_value != compare_value
     elif operation == "contains":
-        return compare_value.lower() in item_value.lower()
+        return compare_value in item_value
     elif operation == "starts_with":
-        return item_value.lower().startswith(compare_value.lower())
+        return item_value.startswith(compare_value)
     elif operation == "ends_with":
-        return item_value.lower().endswith(compare_value.lower())
+        return item_value.endswith(compare_value)
     elif operation == "lexicographically_greater_than":
-        return item_value.lower() > compare_value.lower()
+        return item_value > compare_value
     elif operation == "lexicographically_less_than":
-        return item_value.lower() < compare_value.lower()
+        return item_value < compare_value
     elif operation == "regex":
         try:
             return re.search(compare_value, item_value, re.IGNORECASE) is not None
         except re.error:
             print(f"Invalid regex pattern: {compare_value}")
             return False
-    elif operation == "compare_with_other_string_field":
-        return item_value == compare_value
     else:
         return False
 
 def compare_numeric(item_value, operation, compare_value):
+    try:
+        item_value = float(item_value)
+        if operation != "range" and not isinstance(compare_value, (int, float)):
+            compare_value = float(compare_value)
+    except ValueError:
+        return False
+
     if operation == "equal_to":
-        return item_value == float(compare_value)
+        return item_value == compare_value
     elif operation == "not_equal_to":
-        return item_value != float(compare_value)
+        return item_value != compare_value
     elif operation == "greater_than":
-        return item_value > float(compare_value)
+        return item_value > compare_value
     elif operation == "less_than":
-        return item_value < float(compare_value)
+        return item_value < compare_value
     elif operation == "greater_than_or_equal_to":
-        return item_value >= float(compare_value)
+        return item_value >= compare_value
     elif operation == "less_than_or_equal_to":
-        return item_value <= float(compare_value)
+        return item_value <= compare_value
     elif operation == "range":
         min_val, max_val = compare_value
         return float(min_val) <= item_value <= float(max_val)
+    else:
+        return False
 
 def compare_boolean(item_value, operation, compare_value):
     return item_value == (compare_value.lower() == "true")
 
 def compare_list(item_value, operation, compare_value):
+    if not item_value:
+        return False
     if operation == "length_equal_to":
         return len(item_value) == compare_value
     elif operation == "length_not_equal_to":
@@ -111,7 +137,11 @@ def compare_list(item_value, operation, compare_value):
         return compare_numeric(max(item_value), condition, value)
     elif operation == "average":
         condition, value = compare_value
-        return compare_numeric(sum(item_value) / len(item_value), condition, value)
+        try:
+            avg = sum(float(x) for x in item_value if isinstance(x, (int, float))) / len(item_value)
+            return compare_numeric(avg, condition, value)
+        except (ValueError, ZeroDivisionError):
+            return False
     else:
         return False
     
